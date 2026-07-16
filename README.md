@@ -1,5 +1,7 @@
 # Mandelbrot — Integração Python + C via FFI (`ctypes`)
 
+**Eduardo Alencastro von Ahnt** — Matrícula 20100405
+
 Aplicação gráfica interativa do **conjunto de Mandelbrot** construída com **duas
 linguagens de vocações distintas**, comunicando-se através de uma interface
 binária (FFI):
@@ -61,7 +63,7 @@ correspondente com `platform.system()`:
 | Sistema | Biblioteca gerada | Flag de ligação | Situação |
 |---------|-------------------|-----------------|----------|
 | **Linux** | `libmandelbrot.so` | `-shared` | Compilado e testado |
-| **macOS** | `libmandelbrot.dylib` | `-dynamiclib` | Suportado; requer `xcode-select --install` |
+| **macOS** | `libmandelbrot.dylib` | `-dynamiclib` | Compilado e testado (Apple Silicon, macOS 15) |
 | **Windows** | `mandelbrot.dll` | `-shared` | Suportado **via MSYS2/MinGW-w64** (ver ressalva abaixo) |
 
 Outras diferenças tratadas em tempo de execução ou de compilação:
@@ -85,9 +87,9 @@ recai no fallback; recomenda-se passar o número explicitamente:
 make run THREADS=8
 ```
 
-> **Transparência:** a compilação e os testes automatizados foram executados em
-> Linux. Os caminhos de macOS e Windows estão implementados e revisados, mas não
-> foram validados em execução nessas plataformas.
+> **Transparência:** a aplicação foi compilada e executada em Linux e em macOS
+> (Apple Silicon). O caminho do Windows está implementado e revisado, mas não foi
+> validado em execução.
 
 ---
 
@@ -250,7 +252,9 @@ Em resumo, três decisões sustentam a integração:
 | Sintoma | Causa provável | Solução |
 |---------|----------------|---------|
 | `FileNotFoundError: Biblioteca 'libmandelbrot.so' nao encontrada` | Biblioteca não compilada | Execute `make` |
-| `ModuleNotFoundError: No module named 'tkinter'` | Tkinter ausente | `sudo apt install python3-tk` |
+| `ModuleNotFoundError: No module named '_tkinter'` | Python do Homebrew vem sem Tk (macOS) | `brew install python-tk@3.14` (ajuste a versão) |
+| `ModuleNotFoundError: No module named 'tkinter'` | Tkinter ausente (Linux) | `sudo apt install python3-tk` |
+| `macOS 15 (1507) or later required, have instead 15 (1506)` | Bug do Tk que acompanha o Python do sistema no macOS 15 | Use o Python do Homebrew com `python-tk` instalado |
 | `_tkinter.TclError: no display name` | Ambiente sem servidor gráfico | Use `make run-headless` |
 | `Illegal instruction` | Binário compilado com `-march=native` em outra CPU | `make clean && make NATIVE=0` |
 
